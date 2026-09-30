@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermoConvert — Konversi Suhu Modern</title>
+    <meta name="description" content="Aplikasi konversi suhu modern yang bersih, cepat, dan akurat antara Celsius, Fahrenheit, dan Kelvin.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand-wrapper">
+                <div class="brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                    </svg>
+                </div>
+                <div class="title-wrap">
+                    <h1>Konversi Suhu</h1>
+                    <p>Konversi instan Celsius, Fahrenheit & Kelvin</p>
+                </div>
+            </div>
+
+            <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Ganti tema warna" title="Ganti mode terang/gelap">
+                <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Preset Chips -->
+        <section class="presets-section" aria-label="Preset Suhu Cepat">
+            <span class="presets-label">Preset Cepat</span>
+            <div class="presets-list">
+                <button type="button" class="preset-chip" onclick="setPreset(0, 'celsius')">❄️ 0°C Beku</button>
+                <button type="button" class="preset-chip" onclick="setPreset(25, 'celsius')">🏠 25°C Ruang</button>
+                <button type="button" class="preset-chip" onclick="setPreset(37, 'celsius')">🌡️ 37°C Tubuh</button>
+                <button type="button" class="preset-chip" onclick="setPreset(100, 'celsius')">🔥 100°C Didih</button>
+            </div>
+        </section>
+
+        <!-- Input Box -->
+        <div class="input-card">
+            <div class="input-card-label">
+                <span>Nilai Input</span>
+                <span>Satuan Asal</span>
+            </div>
+            <div class="input-group">
+                <div class="input-field-wrap">
+                    <input type="number" id="inputSuhu" placeholder="Contoh: 25" step="any" autofocus>
+                    <button type="button" id="clearBtn" class="clear-btn" aria-label="Hapus input" title="Hapus">✕</button>
+                </div>
+                <div class="select-wrap">
+                    <select id="inputSatuan">
+                        <option value="celsius">Celsius (°C)</option>
+                        <option value="fahrenheit">Fahrenheit (°F)</option>
+                        <option value="kelvin">Kelvin (K)</option>
+                    </select>
+                    <div class="select-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="btnKonversi" class="btn-convert" onclick="konversiSuhu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+            Konversi Suhu
+        </button>
+
+        <!-- Dynamic Temperature Gauge Indicator -->
+        <div class="temp-gauge-container" id="tempGaugeBox" style="display: none;">
+            <div class="temp-gauge-header">
+                <span class="temp-gauge-title">Status Suhu</span>
+                <span id="tempStatusBadge" class="temp-status-badge normal">Normal</span>
+            </div>
+            <div class="gauge-track">
+                <div id="gaugeFill" class="gauge-fill"></div>
+            </div>
+        </div>
+
+        <!-- Hasil Konversi -->
+        <div id="hasil">
+            <div class="result-placeholder">
+                Masukkan nilai suhu untuk melihat hasil konversi otomatis.
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Copy -->
+    <div id="toast" class="toast-msg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span id="toastText">Tersalin ke clipboard</span>
+    </div>
+
+    <footer class="app-footer">
+        ThermoConvert &bull; Cepat &bull; Akurat &bull; Presisi
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
