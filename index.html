@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThermoConvert — Konversi Suhu Modern</title>
     <meta name="description" content="Aplikasi konversi suhu modern yang bersih, cepat, dan akurat antara Celsius, Fahrenheit, dan Kelvin.">
+    <!-- Apply saved/system theme before first paint to avoid a flash of the wrong theme.
+         Mirrors initTheme() in script.js, which also syncs the toggle icon. -->
+    <script>
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('thermoconvert-theme'); } catch (e) {}
+            var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
