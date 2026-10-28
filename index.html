@@ -34,8 +34,8 @@
                 </div>
             </div>
 
-            <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Ganti tema warna" title="Ganti mode terang/gelap">
-                <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Mode terang" aria-pressed="false" title="Ganti mode terang/gelap">
+                <svg id="themeIcon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
                     <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -53,18 +53,18 @@
         <section class="presets-section" aria-label="Preset Suhu Cepat">
             <span class="presets-label">Preset Cepat</span>
             <div class="presets-list">
-                <button type="button" class="preset-chip" onclick="setPreset(0, 'celsius')">❄️ 0°C Beku</button>
-                <button type="button" class="preset-chip" onclick="setPreset(25, 'celsius')">🏠 25°C Ruang</button>
-                <button type="button" class="preset-chip" onclick="setPreset(37, 'celsius')">🌡️ 37°C Tubuh</button>
-                <button type="button" class="preset-chip" onclick="setPreset(100, 'celsius')">🔥 100°C Didih</button>
+                <button type="button" class="preset-chip" onclick="setPreset(0, 'celsius')"><span aria-hidden="true">❄️</span> 0°C Beku</button>
+                <button type="button" class="preset-chip" onclick="setPreset(25, 'celsius')"><span aria-hidden="true">🏠</span> 25°C Ruang</button>
+                <button type="button" class="preset-chip" onclick="setPreset(37, 'celsius')"><span aria-hidden="true">🌡️</span> 37°C Tubuh</button>
+                <button type="button" class="preset-chip" onclick="setPreset(100, 'celsius')"><span aria-hidden="true">🔥</span> 100°C Didih</button>
             </div>
         </section>
 
         <!-- Input Box -->
         <div class="input-card">
             <div class="input-card-label">
-                <span>Nilai Input</span>
-                <span>Satuan Asal</span>
+                <label for="inputSuhu">Nilai Input</label>
+                <label for="inputSatuan">Satuan Asal</label>
             </div>
             <div class="input-group">
                 <div class="input-field-wrap">
@@ -87,8 +87,8 @@
         </div>
 
         <!-- Action Button -->
-        <button id="btnKonversi" class="btn-convert" onclick="konversiSuhu()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button id="btnKonversi" class="btn-convert" type="button" onclick="konversiSuhu()">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="16 3 21 3 21 8"></polyline>
                 <line x1="4" y1="20" x2="21" y2="3"></line>
                 <polyline points="21 16 21 21 16 21"></polyline>
@@ -101,10 +101,11 @@
         <!-- Dynamic Temperature Gauge Indicator -->
         <div class="temp-gauge-container" id="tempGaugeBox" style="display: none;">
             <div class="temp-gauge-header">
-                <span class="temp-gauge-title">Status Suhu</span>
+                <span id="tempGaugeTitle" class="temp-gauge-title">Status Suhu</span>
                 <span id="tempStatusBadge" class="temp-status-badge normal">Normal</span>
             </div>
-            <div class="gauge-track">
+            <div id="gaugeTrack" class="gauge-track" role="meter" aria-labelledby="tempGaugeTitle"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="Normal">
                 <div id="gaugeFill" class="gauge-fill"></div>
             </div>
         </div>
@@ -115,11 +116,14 @@
                 Masukkan nilai suhu untuk melihat hasil konversi otomatis.
             </div>
         </div>
+
+        <!-- Short spoken summary of the result for screen readers -->
+        <p id="srStatus" class="sr-only" role="status" aria-live="polite"></p>
     </div>
 
     <!-- Toast Notification for Copy -->
-    <div id="toast" class="toast-msg">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <div id="toast" class="toast-msg" role="status" aria-live="polite">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
         <span id="toastText">Tersalin ke clipboard</span>

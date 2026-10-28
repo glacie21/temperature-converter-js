@@ -565,6 +565,10 @@ button.btn-convert svg {
 }
 
 .result-card {
+  /* Rendered as <button>: reset native button styles */
+  font: inherit;
+  color: inherit;
+  width: 100%;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -626,8 +630,16 @@ button.btn-convert svg {
   transition: opacity var(--transition-fast);
 }
 
-.result-card:hover .copy-hint {
+.result-card:hover .copy-hint,
+.result-card:focus-visible .copy-hint {
   opacity: 1;
+}
+
+/* Touch screens have no hover, so always show the copy hint */
+@media (hover: none) {
+  .result-card .copy-hint {
+    opacity: 1;
+  }
 }
 
 /* Result Empty / Notification State */
@@ -727,6 +739,40 @@ button.btn-convert svg {
   color: var(--text-subtle);
   position: relative;
   z-index: 1;
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+
+/* Visible keyboard focus ring for buttons, chips and result cards */
+button:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Hidden visually, still read by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ============================================================

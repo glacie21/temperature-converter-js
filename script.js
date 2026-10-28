@@ -64,6 +64,9 @@ function setTheme(theme) {
             `;
         }
     }
+    if (themeToggleBtn) {
+        themeToggleBtn.setAttribute('aria-pressed', String(theme === 'light'));
+    }
 }
 
 initTheme();
@@ -137,10 +140,23 @@ function setPreset(value, unit) {
     konversiSuhu();
 }
 
+// Screen reader announcement, debounced so typing "123" isn't read as "1", "12", "123"
+let announceTimer = null;
+function announce(message) {
+    const srStatus = document.getElementById('srStatus');
+    if (!srStatus) return;
+
+    clearTimeout(announceTimer);
+    announceTimer = setTimeout(() => {
+        srStatus.textContent = message;
+    }, 600);
+}
+
 function showError(message) {
+    announce(message);
     document.getElementById('hasil').innerHTML = `
         <div class="result-error">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -158,12 +174,14 @@ function konversiSuhu() {
     const inputSatuan = document.getElementById('inputSatuan').value;
     const hasilElemen = document.getElementById('hasil');
     const gaugeBox = document.getElementById('tempGaugeBox');
+    const gaugeTrack = document.getElementById('gaugeTrack');
     const gaugeFill = document.getElementById('gaugeFill');
     const statusBadge = document.getElementById('tempStatusBadge');
 
     const rawValue = inputElement.value.trim();
 
     if (rawValue === '' || isNaN(parseFloat(rawValue))) {
+        announce('');
         hasilElemen.innerHTML = `
             <div class="result-placeholder">
                 Masukkan nilai suhu untuk melihat hasil konversi otomatis.
@@ -249,7 +267,12 @@ function konversiSuhu() {
         statusBadge.textContent = statusText;
         statusBadge.className = `temp-status-badge ${statusClass}`;
         gaugeFill.style.width = `${gaugePercent}%`;
-        
+
+        if (gaugeTrack) {
+            gaugeTrack.setAttribute('aria-valuenow', String(Math.round(gaugePercent)));
+            gaugeTrack.setAttribute('aria-valuetext', statusText);
+        }
+
         const colors = {
             cold: '#38bdf8',
             cool: '#2dd4bf',
@@ -264,36 +287,41 @@ function konversiSuhu() {
     const fFormatted = formatNumber(fahrenheit);
     const kFormatted = formatNumber(kelvin);
 
+    announce(`${cFormatted} °C sama dengan ${fFormatted} °F dan ${kFormatted} K. Status suhu: ${statusText}.`);
+
     hasilElemen.innerHTML = `
         <div class="results-grid">
-            <div class="result-card ${inputSatuan === 'celsius' ? 'is-active' : ''}" 
+            <button type="button" class="result-card ${inputSatuan === 'celsius' ? 'is-active' : ''}"
                  onclick="copyValue('${cFormatted} °C', 'Celsius')"
+                 aria-label="Salin nilai Celsius: ${cFormatted} °C"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Celsius</span>
                 <span class="value-display">${cFormatted}<span class="unit-symbol">°C</span></span>
-                <span class="copy-hint">Salin 📋</span>
-            </div>
+                <span class="copy-hint" aria-hidden="true">Salin 📋</span>
+            </button>
 
-            <div class="result-card ${inputSatuan === 'fahrenheit' ? 'is-active' : ''}" 
+            <button type="button" class="result-card ${inputSatuan === 'fahrenheit' ? 'is-active' : ''}"
                  onclick="copyValue('${fFormatted} °F', 'Fahrenheit')"
+                 aria-label="Salin nilai Fahrenheit: ${fFormatted} °F"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Fahrenheit</span>
                 <span class="value-display">${fFormatted}<span class="unit-symbol">°F</span></span>
-                <span class="copy-hint">Salin 📋</span>
-            </div>
+                <span class="copy-hint" aria-hidden="true">Salin 📋</span>
+            </button>
 
-            <div class="result-card ${inputSatuan === 'kelvin' ? 'is-active' : ''}" 
+            <button type="button" class="result-card ${inputSatuan === 'kelvin' ? 'is-active' : ''}"
                  onclick="copyValue('${kFormatted} K', 'Kelvin')"
+                 aria-label="Salin nilai Kelvin: ${kFormatted} K"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Kelvin</span>
                 <span class="value-display">${kFormatted}<span class="unit-symbol">K</span></span>
-                <span class="copy-hint">Salin 📋</span>
-            </div>
+                <span class="copy-hint" aria-hidden="true">Salin 📋</span>
+            </button>
         </div>
 
         <div class="formula-card">
             <div class="formula-header">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="16" x2="12" y2="12"></line>
                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
