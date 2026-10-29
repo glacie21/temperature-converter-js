@@ -56,10 +56,10 @@
         <section class="presets-section" aria-label="Preset Suhu Cepat">
             <span class="presets-label">Preset Cepat</span>
             <div class="presets-list">
-                <button type="button" class="preset-chip" onclick="setPreset(0, 'celsius')"><span aria-hidden="true">❄️</span> 0°C Beku</button>
-                <button type="button" class="preset-chip" onclick="setPreset(25, 'celsius')"><span aria-hidden="true">🏠</span> 25°C Ruang</button>
-                <button type="button" class="preset-chip" onclick="setPreset(37, 'celsius')"><span aria-hidden="true">🌡️</span> 37°C Tubuh</button>
-                <button type="button" class="preset-chip" onclick="setPreset(100, 'celsius')"><span aria-hidden="true">🔥</span> 100°C Didih</button>
+                <button type="button" class="preset-chip" data-value="0" data-unit="celsius"><span aria-hidden="true">❄️</span> 0°C Beku</button>
+                <button type="button" class="preset-chip" data-value="25" data-unit="celsius"><span aria-hidden="true">🏠</span> 25°C Ruang</button>
+                <button type="button" class="preset-chip" data-value="37" data-unit="celsius"><span aria-hidden="true">🌡️</span> 37°C Tubuh</button>
+                <button type="button" class="preset-chip" data-value="100" data-unit="celsius"><span aria-hidden="true">🔥</span> 100°C Didih</button>
             </div>
         </section>
 
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Action Button -->
-        <button id="btnKonversi" class="btn-convert" type="button" onclick="konversiSuhu()">
+        <button id="btnKonversi" class="btn-convert" type="button">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="16 3 21 3 21 8"></polyline>
                 <line x1="4" y1="20" x2="21" y2="3"></line>
@@ -136,6 +136,7 @@
         ThermoConvert &bull; Cepat &bull; Akurat &bull; Presisi
     </footer>
 
+    <script src="converter.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

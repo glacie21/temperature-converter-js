@@ -41,14 +41,26 @@ Tidak perlu instalasi apa pun. Pilih salah satu:
 | Fahrenheit → Celsius | °C = (°F − 32) × 5/9 |
 | Kelvin → Celsius | °C = K − 273,15 |
 
+## Menjalankan Test
+
+Logika konversi diuji dengan test runner bawaan Node.js (versi 20 ke atas), tanpa dependensi tambahan:
+
+```bash
+npm test
+```
+
 ## Struktur Proyek
 
 ```
 .
 ├── index.html      # Struktur halaman
 ├── style.css       # Tampilan, tema terang/gelap
-├── script.js       # Logika konversi dan interaksi
+├── converter.js    # Logika konversi murni (tanpa DOM), dipakai di browser dan test
+├── script.js       # Interaksi halaman: input, hasil, tema, salin
 ├── favicon.svg     # Ikon aplikasi
+├── package.json    # Skrip `npm test`
+├── tests/
+│   └── converter.test.js
 └── assets/
     └── screenshot.png
 ```

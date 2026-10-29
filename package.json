@@ -1,0 +1,10 @@
+{
+  "name": "thermoconvert",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplikasi web konversi suhu Celsius, Fahrenheit, dan Kelvin",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\""
+  }
+}
