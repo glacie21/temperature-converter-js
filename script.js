@@ -108,9 +108,19 @@ function fallbackCopy(text, label) {
     tempInput.value = text;
     document.body.appendChild(tempInput);
     tempInput.select();
-    document.execCommand('copy');
+
+    // execCommand returns false (or throws) when copying is blocked
+    let copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch (e) {
+        copied = false;
+    }
     document.body.removeChild(tempInput);
-    showToast(`Nilai ${label} (${text}) berhasil disalin!`);
+
+    showToast(copied
+        ? `Nilai ${label} (${text}) berhasil disalin!`
+        : `Gagal menyalin. Salin manual: ${text}`);
 }
 
 let toastTimer = null;
@@ -213,13 +223,13 @@ function konversiSuhu() {
             fahrenheit = inputSuhu;
             celsius = (fahrenheit - 32) * 5/9;
             kelvin = celsius + KELVIN_OFFSET;
-            formulaDesc = `°C = (${formatNumber(fahrenheit)} - 32) × 5/9 | K = °C + ${KELVIN_OFFSET_TEXT}`;
+            formulaDesc = `°C = (${formatNumber(fahrenheit)} - 32) × 5/9 | K = ${formatNumber(celsius)} + ${KELVIN_OFFSET_TEXT}`;
             break;
         case 'kelvin':
             kelvin = inputSuhu;
             celsius = kelvin - KELVIN_OFFSET;
             fahrenheit = (celsius * 9/5) + 32;
-            formulaDesc = `°C = ${formatNumber(kelvin)} - ${KELVIN_OFFSET_TEXT} | °F = (°C × 9/5) + 32`;
+            formulaDesc = `°C = ${formatNumber(kelvin)} - ${KELVIN_OFFSET_TEXT} | °F = (${formatNumber(celsius)} × 9/5) + 32`;
             break;
     }
 
@@ -267,20 +277,12 @@ function konversiSuhu() {
         statusBadge.textContent = statusText;
         statusBadge.className = `temp-status-badge ${statusClass}`;
         gaugeFill.style.width = `${gaugePercent}%`;
+        gaugeFill.className = `gauge-fill ${statusClass}`;
 
         if (gaugeTrack) {
             gaugeTrack.setAttribute('aria-valuenow', String(Math.round(gaugePercent)));
             gaugeTrack.setAttribute('aria-valuetext', statusText);
         }
-
-        const colors = {
-            cold: '#38bdf8',
-            cool: '#2dd4bf',
-            normal: '#4ade80',
-            warm: '#fbbf24',
-            hot: '#f87171'
-        };
-        gaugeFill.style.backgroundColor = colors[statusClass] || '#38bdf8';
     }
 
     const cFormatted = formatNumber(celsius);
@@ -362,12 +364,6 @@ if (inputSuhuElem) {
         checkClearBtn();
         konversiSuhu();
     });
-
-    inputSuhuElem.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            konversiSuhu();
-        }
-    });
 }
 
 if (inputSatuanElem) {
@@ -376,13 +372,10 @@ if (inputSatuanElem) {
     });
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    checkClearBtn();
-    // Default preview with 25 °C
-    if (inputSuhuElem && inputSuhuElem.value === '') {
-        inputSuhuElem.value = '25';
-        checkClearBtn();
-        konversiSuhu();
-    }
-});
+// Initialize on page load (script runs at the end of <body>, so the DOM is ready)
+// Default preview with 25 °C
+if (inputSuhuElem && inputSuhuElem.value === '') {
+    inputSuhuElem.value = '25';
+}
+checkClearBtn();
+konversiSuhu();

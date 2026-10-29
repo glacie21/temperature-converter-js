@@ -4,8 +4,6 @@
    Clean Typography, and Micro-interactions.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 :root {
   /* Color Palette - Dark Slate Theme (Default) */
   --bg-gradient: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 60%, #020617 100%);
@@ -549,6 +547,13 @@ button.btn-convert svg {
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease;
   background: var(--accent-primary);
 }
+
+/* Gauge color follows the status class set in script.js */
+.gauge-fill.cold { background: var(--temp-cold); }
+.gauge-fill.cool { background: var(--temp-cool); }
+.gauge-fill.normal { background: var(--temp-moderate); }
+.gauge-fill.warm { background: var(--temp-warm); }
+.gauge-fill.hot { background: var(--temp-hot); }
 
 /* ============================================================
    Results Area
