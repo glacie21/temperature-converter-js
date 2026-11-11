@@ -80,15 +80,8 @@ if (themeToggleBtn) {
     });
 }
 
-// Format numbers in id-ID locale, max 2 decimals, no trailing zeros
-function formatNumber(num) {
-    // `|| 0` turns -0 (e.g. from -0.001 rounded) into 0
-    const rounded = parseFloat(num.toFixed(2)) || 0;
-    return rounded.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-}
-
-const KELVIN_OFFSET = 273.15;
-const KELVIN_OFFSET_TEXT = formatNumber(KELVIN_OFFSET);
+// Pure conversion logic lives in converter.js
+const { formatNumber, convertTemperature, getFormula, getTemperatureStatus } = window.ThermoConvert;
 
 // Copy to clipboard helper
 function copyValue(text, label) {
@@ -201,76 +194,20 @@ function konversiSuhu() {
         return;
     }
 
-    const inputSuhu = parseFloat(rawValue);
-
-    // Kelvin cannot be below absolute zero (0 K)
-    if (inputSatuan === 'kelvin' && inputSuhu < 0) {
-        showError('Suhu Kelvin tidak boleh di bawah nol mutlak (0 K).');
+    const result = convertTemperature(parseFloat(rawValue), inputSatuan);
+    if (result.error) {
+        showError(result.error);
         return;
     }
 
-    let celsius, fahrenheit, kelvin;
-    let formulaDesc = '';
+    const { celsius, fahrenheit, kelvin } = result;
+    const formulaDesc = getFormula(inputSatuan, result);
 
-    switch (inputSatuan) {
-        case 'celsius':
-            celsius = inputSuhu;
-            fahrenheit = (celsius * 9/5) + 32;
-            kelvin = celsius + KELVIN_OFFSET;
-            formulaDesc = `°F = (${formatNumber(celsius)} × 9/5) + 32 | K = ${formatNumber(celsius)} + ${KELVIN_OFFSET_TEXT}`;
-            break;
-        case 'fahrenheit':
-            fahrenheit = inputSuhu;
-            celsius = (fahrenheit - 32) * 5/9;
-            kelvin = celsius + KELVIN_OFFSET;
-            formulaDesc = `°C = (${formatNumber(fahrenheit)} - 32) × 5/9 | K = ${formatNumber(celsius)} + ${KELVIN_OFFSET_TEXT}`;
-            break;
-        case 'kelvin':
-            kelvin = inputSuhu;
-            celsius = kelvin - KELVIN_OFFSET;
-            fahrenheit = (celsius * 9/5) + 32;
-            formulaDesc = `°C = ${formatNumber(kelvin)} - ${KELVIN_OFFSET_TEXT} | °F = (${formatNumber(celsius)} × 9/5) + 32`;
-            break;
-    }
-
-    // Reject values that overflow to Infinity (e.g. 1e308 °C → °F)
-    if (![celsius, fahrenheit, kelvin].every(Number.isFinite)) {
-        showError('Nilai terlalu besar untuk dihitung. Coba angka yang lebih kecil.');
-        return;
-    }
-
-    // Check absolute zero for Celsius and Fahrenheit
-    if (celsius < -KELVIN_OFFSET) {
-        showError(`Suhu di bawah nol mutlak (-${KELVIN_OFFSET_TEXT} °C) tidak dimungkinkan secara fisika.`);
-        return;
-    }
-
-    // Determine status badge & gauge based on Celsius equivalent
-    let statusText = 'Normal';
-    let statusClass = 'normal';
-    let gaugePercent = 50;
-
-    if (celsius <= 0) {
-        statusText = 'Beku / Dingin Ekstrem';
-        statusClass = 'cold';
-        gaugePercent = Math.max(5, 20 + celsius * 0.5);
-    } else if (celsius <= 18) {
-        statusText = 'Sejuk';
-        statusClass = 'cool';
-        gaugePercent = 20 + (celsius / 18) * 20;
-    } else if (celsius <= 32) {
-        statusText = 'Nyaman / Normal';
-        statusClass = 'normal';
-        gaugePercent = 40 + ((celsius - 18) / 14) * 20;
-    } else if (celsius <= 50) {
-        statusText = 'Hangat / Panas';
-        statusClass = 'warm';
-        gaugePercent = 60 + ((celsius - 32) / 18) * 20;
-    } else {
-        statusText = 'Sangat Panas';
-        statusClass = 'hot';
-        gaugePercent = Math.min(100, 80 + ((celsius - 50) / 50) * 20);
-    }
+    // Status badge & gauge based on Celsius equivalent
+    const status = getTemperatureStatus(celsius);
+    const statusText = status.text;
+    const statusClass = status.className;
+    const gaugePercent = status.percent;
 
     if (gaugeBox && statusBadge && gaugeFill) {
         gaugeBox.style.display = 'flex';
@@ -294,7 +231,7 @@ function konversiSuhu() {
     hasilElemen.innerHTML = `
         <div class="results-grid">
             <button type="button" class="result-card ${inputSatuan === 'celsius' ? 'is-active' : ''}"
-                 onclick="copyValue('${cFormatted} °C', 'Celsius')"
+                 data-copy="${cFormatted} °C" data-label="Celsius"
                  aria-label="Salin nilai Celsius: ${cFormatted} °C"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Celsius</span>
@@ -303,7 +240,7 @@ function konversiSuhu() {
             </button>
 
             <button type="button" class="result-card ${inputSatuan === 'fahrenheit' ? 'is-active' : ''}"
-                 onclick="copyValue('${fFormatted} °F', 'Fahrenheit')"
+                 data-copy="${fFormatted} °F" data-label="Fahrenheit"
                  aria-label="Salin nilai Fahrenheit: ${fFormatted} °F"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Fahrenheit</span>
@@ -312,7 +249,7 @@ function konversiSuhu() {
             </button>
 
             <button type="button" class="result-card ${inputSatuan === 'kelvin' ? 'is-active' : ''}"
-                 onclick="copyValue('${kFormatted} K', 'Kelvin')"
+                 data-copy="${kFormatted} K" data-label="Kelvin"
                  aria-label="Salin nilai Kelvin: ${kFormatted} K"
                  title="Klik untuk menyalin">
                 <span class="unit-badge">Kelvin</span>
@@ -369,6 +306,27 @@ if (inputSuhuElem) {
 if (inputSatuanElem) {
     inputSatuanElem.addEventListener('change', () => {
         konversiSuhu();
+    });
+}
+
+const btnKonversi = document.getElementById('btnKonversi');
+if (btnKonversi) {
+    btnKonversi.addEventListener('click', konversiSuhu);
+}
+
+// Preset chips carry their value/unit in data attributes
+document.querySelectorAll('.preset-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+        setPreset(chip.dataset.value, chip.dataset.unit);
+    });
+});
+
+// Result cards are re-rendered on every conversion, so delegate from #hasil
+const hasilContainer = document.getElementById('hasil');
+if (hasilContainer) {
+    hasilContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('.result-card');
+        if (card) copyValue(card.dataset.copy, card.dataset.label);
     });
 }
 
